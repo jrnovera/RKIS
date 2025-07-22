@@ -1,0 +1,80 @@
+/* TotalListIOfPopulation.css */
+
+.total-population-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.total-population-title {
+  color: #1a3b5d;
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.search-filter-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 250px;
+}
+
+.barangay-select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  min-width: 150px;
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.population-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.population-table th,
+.population-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.population-table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  color: #333;
+}
+
+.population-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.population-table tr:hover {
+  background-color: #f0f0f0;
+}
+
+.view-profile-btn {
+  color:red;
+}
+
+
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}

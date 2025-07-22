@@ -1,0 +1,26 @@
+.user-greeting {
+  color: #1a3b5d;
+  margin-right: 15px;
+  font-weight: 500;
+}
+
+.logout-btn {
+  color: #000000;
+  transition: color 0.3s;
+  text-decoration: none;
+}
+
+.logout-btn:hover {
+  color: #1a3b5d;
+}
+
+.error-message {
+  color: #d32f2f;
+  font-size: 14px;
+  margin-left: 15px;
+}
+.header {
+    background-color: #fdfdfd;
+
+}
+    
