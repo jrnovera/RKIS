@@ -5,6 +5,7 @@ import './AboutSidePanel.css'
 import './Navbar.css'
 import { useAuth } from '../contexts/AuthContext'
 
+
 function Navbar() {
     const [showAboutPanel, setShowAboutPanel] = useState(false);
     const [error, setError] = useState('');
@@ -62,6 +63,7 @@ function Navbar() {
                 <div className="logo">Katutubo IS</div>
                 <nav className="nav">
                     <Link to="/" className="nav-item active">Home</Link>
+                
                     <a href="#" onClick={toggleAboutPanel} className={`nav-item about-link ${showAboutPanel ? 'active' : ''}`}>About Us</a>
                     {currentUser ? (
                         <>

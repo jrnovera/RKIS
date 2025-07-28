@@ -4,7 +4,8 @@ import './SuperAdminDashboard.css';
 import Navbar from '../components/Navbar';
 import { allBarangays } from '../components/Brgylist';
 import IPFormModal from '../components/IPFormModal';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
+
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
 function SuperAdminDashboard() {
@@ -18,6 +19,11 @@ function SuperAdminDashboard() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [selectedIp, setSelectedIp] = useState(null);
+  
+  // Profile view state
+  const [showProfileView, setShowProfileView] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
   
   // No need for formData state here as it's moved to IPFormModal component
   
@@ -99,6 +105,7 @@ function SuperAdminDashboard() {
   const handleCloseForm = () => {
     setShowAddForm(false);
     setShowUpdateForm(false);
+    setShowProfileView(false);
   };
 
   // Select IP for update
@@ -136,8 +143,73 @@ function SuperAdminDashboard() {
       
       // Delete from local state
       setIpList(ipList.filter(item => item.id !== ip.id));
+      
+      // Close profile view if the deleted IP was being viewed
+      if (showProfileView && profileData && profileData.id === ip.id) {
+        setShowProfileView(false);
+        setProfileData(null);
+      }
     } catch (error) {
       console.error('Error deleting IP:', error);
+    }
+  };
+  
+  // View IP profile
+  const handleViewProfile = async (ip) => {
+    try {
+      setLoadingProfile(true);
+      
+      // Get the full document data
+      const ipRef = doc(db, 'indigenousPeople', ip.id);
+      const ipSnap = await getDoc(ipRef);
+      
+      if (ipSnap.exists()) {
+        const data = ipSnap.data();
+        
+        // Create a name from the available fields
+        const fullName = ip.name || `${data.lastName || ''}, ${data.sirstName || ''} ${data.middleName || ''}`;
+        
+        // Transform data to match ProfileView component's expected format
+        const transformedData = {
+          id: ip.id,
+          name: fullName,
+          dateOfBirth: data.birthdate || 'Unknown',
+          age: data.age || 'Unknown',
+          gender: data.gender || 'Unknown',
+          civilStatus: data.civilStatus || 'Unknown',
+          educationLevel: data.educationLevel || 'Unknown',
+          occupation: data.occupation || 'Unknown',
+          healthCondition: data.healthCondition || 'None',
+          householdMembers: [
+            fullName,
+            'Household Member 1',
+            'Household Member 2',
+            'Household Member 3',
+            'Household Member 4'
+          ],
+          ethnicity: {
+            aeta: data.ethnicityAeta || 75,
+            cebuano: data.ethnicityCebuano || 25
+          },
+          familyTree: {
+            grandfather: "GRANDFATHER",
+            grandmother: "GRANDMOTHER",
+            father: "FATHER",
+            mother: "MOTHER",
+            siblings: ["BROTHER", "SISTER"],
+            self: data.firstName || "SELF",
+            spouse: "WIFE",
+            children: ["SON"]
+          }
+        };
+        
+        setProfileData(transformedData);
+        setShowProfileView(true);
+      }
+    } catch (error) {
+      console.error('Error fetching profile data:', error);
+    } finally {
+      setLoadingProfile(false);
     }
   };
 
@@ -167,21 +239,21 @@ function SuperAdminDashboard() {
               <button className="clear-filter" onClick={clearBarangayFilter}>Clear Filter</button>
             )}
           </div>
+          <div className="search-container">
+          <button className="action-button add-button" onClick={handleAdd}>Add IP</button>
+          </div>
         </div>
         <div className="action-buttons">
-        <button className="action-button add-button" onClick={handleAdd}>Add IP</button>
-      </div>  
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search Here..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
+        <input
+              type="text"
+              placeholder="Search Here..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+         
         </div>
       </div>
-
       <div className="ip-list">
         <h2>
           {selectedBarangay 
@@ -199,8 +271,9 @@ function SuperAdminDashboard() {
                 ip.name.toLowerCase().includes(searchTerm.toLowerCase()))
               .map((ip) => (
                 <li key={ip.id} className="ip-list-item">
-                  {ip.name}
+                  <span className="ip-name" onClick={() => handleViewProfile(ip)}>{ip.name}</span>
                   <div className="item-actions">
+                    <button className="item-action-btn view-btn" onClick={() => handleViewProfile(ip)}>View</button>
                     <button className="item-action-btn edit-btn" onClick={() => handleUpdate(ip)}>Edit</button>
                     <button className="item-action-btn delete-btn" onClick={() => handleDelete(ip)}>Delete</button>
                   </div>
@@ -228,6 +301,49 @@ function SuperAdminDashboard() {
         initialData={selectedIp}
         isEditing={true}
       />
+      
+      {/* Profile View Modal */}
+      {showProfileView && (
+        <div className="profile-modal">
+          <div className="profile-modal-content">
+            <div className="profile-modal-header">
+              <h2>Indigenous Person Profile</h2>
+              <button className="close-modal-btn" onClick={handleCloseForm}>&times;</button>
+            </div>
+            <div className="profile-modal-body">
+              {loadingProfile ? (
+                <div className="loading-profile">Loading profile data...</div>
+              ) : profileData ? (
+                <div className="profile-details">
+                  <div className="profile-section">
+                    <h3>Personal Information</h3>
+                    <p><strong>Name:</strong> {profileData.name}</p>
+                    <p><strong>Gender:</strong> {profileData.gender}</p>
+                    <p><strong>Birthdate:</strong> {profileData.birthdate}</p>
+                    <p><strong>Age:</strong> {profileData.age}</p>
+                    <p><strong>Civil Status:</strong> {profileData.civilStatus}</p>
+                  </div>
+                  
+                  <div className="profile-section">
+                    <h3>Contact & Address</h3>
+                    <p><strong>Barangay:</strong> {profileData.barangay}</p>
+                    <p><strong>Contact Number:</strong> {profileData.contactNumber || 'N/A'}</p>
+                  </div>
+                  
+                  <div className="profile-section">
+                    <h3>Other Information</h3>
+                    <p><strong>Tribe:</strong> {profileData.tribe}</p>
+                    <p><strong>Occupation:</strong> {profileData.occupation || 'N/A'}</p>
+                    <p><strong>Health Condition:</strong> {profileData.healthCondition || 'None'}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="profile-error">Could not load profile data</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

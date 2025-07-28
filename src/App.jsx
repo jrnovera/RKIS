@@ -7,6 +7,7 @@ import Homepage from "./pages/Homepage";
 import TotalPopulation from "./pages/TotalPopulation";
 import Unauthorized from "./pages/Unauthorized";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
+
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute, AdminRoute, SuperAdminRoute } from "./components/ProtectedRoute";
 import RoleBasedRedirect from "./components/RoleBasedRedirect";
@@ -37,12 +38,45 @@ function App() {
             </ProtectedRoute>
           } />
           
+          <Route path="/total-male" element={
+            <ProtectedRoute>
+              <TotalPopulation />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/total-female" element={
+            <ProtectedRoute>
+              <TotalPopulation />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/total-students" element={
+            <ProtectedRoute>
+              <TotalPopulation />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/total-unemployed" element={
+            <ProtectedRoute>
+              <TotalPopulation />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/total-health-condition" element={
+            <ProtectedRoute>
+              <TotalPopulation />
+            </ProtectedRoute>
+          } />
+          
+
           {/* Admin dashboard */}
           <Route path="/admin" element={
             <AdminRoute>
               <Homepage />
             </AdminRoute>
           } />
+          
+     
           
           {/* Admin routes - require admin or super_admin role */}
           <Route path="/admin/*" element={
